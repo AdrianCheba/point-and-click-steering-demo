@@ -141,6 +141,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Character3
       objectReference: {fileID: 0}
+    - target: {fileID: 3239352597891599348, guid: 71045b1cbb3cc4c4e836f0fc97043daf,
+        type: 3}
+      propertyPath: m_StoppingDistance
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 7479456543278053341, guid: 71045b1cbb3cc4c4e836f0fc97043daf,
         type: 3}
       propertyPath: m_LocalPosition.x

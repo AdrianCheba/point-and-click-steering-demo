@@ -15,3 +15,6 @@ MonoBehaviour:
   LiderID: 0
   MainCamera: {fileID: 0}
   LiderTransform: {fileID: 0}
+  StaminaRegenTime: 2
+  LeaderStoppingDistance: 0.2
+  CharacterStoppingDistance: 1.5

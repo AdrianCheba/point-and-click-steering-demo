@@ -16,5 +16,5 @@ MonoBehaviour:
   MaxSpeed: 5
   MinManeuverability: 100
   MaxManeuverability: 140
-  MinStamina: 1
+  MinStamina: 3
   MaxStamina: 10

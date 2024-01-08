@@ -10,7 +10,19 @@ class CharacterConfig : ScriptableObject
     internal Camera MainCamera;
 
     [SerializeField]
-    internal Transform LiderTransform;   
+    internal Transform LiderTransform;
+
+    [SerializeField]
+    [Range(0.1f, 5f)]
+    internal float StaminaRegenTime;
+
+    [SerializeField]
+    [Range(0.1f, 3f)]
+    internal float LeaderStoppingDistance; 
     
+    [SerializeField]
+    [Range(0.1f, 3f)]
+    internal float CharacterStoppingDistance;
+
     internal Vector3 DestinationPoint;
 }

@@ -1,11 +1,16 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "CharacterConfig", menuName = "Config/CharacterConfig")]
-public class CharacterConfig : ScriptableObject
+class CharacterConfig : ScriptableObject
 {
-    public int LiderID;
+    [SerializeField]
+    internal int LiderID;
 
-    public Camera MainCamera;
+    [SerializeField]
+    internal Camera MainCamera;
 
-    public Transform LiderTransform;
+    [SerializeField]
+    internal Transform LiderTransform;   
+    
+    internal Vector3 DestinationPoint;
 }

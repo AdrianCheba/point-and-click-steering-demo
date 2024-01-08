@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
 
-public class Character : MonoBehaviour
+class Character : MonoBehaviour
 {
     [SerializeField]
     CharacterConfig _charactersConfig;
@@ -19,7 +19,6 @@ public class Character : MonoBehaviour
     GeneratorConfig _generatorConfig;
 
     NavMeshAgent _navMeshAgent;
-    RaycastHit _hit;
 
     float _speed;
     float _maneuverability;
@@ -29,13 +28,14 @@ public class Character : MonoBehaviour
     void OnEnable()
     {
         _actionAsset.Enable();
+
         _charactersConfig.LiderID = 0;
         _charactersConfig.LiderTransform = null;
         _navMeshAgent = gameObject.GetComponent<NavMeshAgent>();
         _charactersConfig.MainCamera = Camera.main;
         _isRuning = false;
 
-        GenerateAttributes();
+        GenerateTraits();
     }
 
     void Update()
@@ -55,27 +55,31 @@ public class Character : MonoBehaviour
             }
 
             Ray ray = _charactersConfig.MainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
-            if (Physics.Raycast(ray: ray, hitInfo: out _hit) && _hit.collider)
+            if (Physics.Raycast(ray: ray, hitInfo: out RaycastHit hit) && hit.collider)
             {
                 if (_characterID == _charactersConfig.LiderID)
                 {
                     _charactersConfig.LiderTransform = transform;
-                    _navMeshAgent.destination = _hit.point;
-                    _navMeshAgent.stoppingDistance = 0;
+                    _charactersConfig.DestinationPoint = hit.point;
                 }
-
-                _isRuning = true;
             }
         };
 
-        if (_characterID != _charactersConfig.LiderID && _charactersConfig.LiderTransform != null)
+        if (_characterID == _charactersConfig.LiderID && _charactersConfig.LiderTransform != null)
+        {
+            _isRuning = true;
+            _navMeshAgent.destination = _charactersConfig.DestinationPoint;
+            _charactersConfig.LiderTransform = transform;
+            _navMeshAgent.stoppingDistance = 0.2f;
+        }
+        else if (_characterID != _charactersConfig.LiderID && _charactersConfig.LiderTransform != null)
         {
             _navMeshAgent.destination = _charactersConfig.LiderTransform.position;
-            _navMeshAgent.stoppingDistance = 1;
+            _navMeshAgent.stoppingDistance = 1.5f;
         }
     }
 
-    void GenerateAttributes() 
+    void GenerateTraits() 
     { 
         _speed = Random.Range(_generatorConfig.MinSpeed, _generatorConfig.MaxSpeed);
         _maneuverability = Random.Range(_generatorConfig.MinManeuverability, _generatorConfig.MaxManeuverability);

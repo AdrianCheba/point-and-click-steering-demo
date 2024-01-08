@@ -1,12 +1,23 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "GeneratorConfig", menuName = "Config/GeneratorConfig")]
-public class GeneratorConfig : ScriptableObject
+class GeneratorConfig : ScriptableObject
 {
-    public float MinSpeed;
-    public float MaxSpeed;
-    public float MinManeuverability;
-    public float MaxManeuverability;
-    public float MinStamina;
-    public float MaxStamina;
+    [SerializeField]
+    internal float MinSpeed;
+
+    [SerializeField]
+    internal float MaxSpeed;
+
+    [SerializeField]
+    internal float MinManeuverability;
+
+    [SerializeField]
+    internal float MaxManeuverability;
+
+    [SerializeField]
+    internal float MinStamina;
+
+    [SerializeField]
+    internal float MaxStamina;
 }

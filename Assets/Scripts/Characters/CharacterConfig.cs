@@ -4,13 +4,16 @@ using UnityEngine;
 class CharacterConfig : ScriptableObject
 {
     [SerializeField]
-    internal int LiderID;
+    internal int LeaderID;
 
     [SerializeField]
     internal Camera MainCamera;
+    
+    [SerializeField]
+    internal bool IsLeaderAtDestination;
 
     [SerializeField]
-    internal Transform LiderTransform;
+    internal Transform LeaderTransform;
 
     [SerializeField]
     [Range(0.1f, 5f)]

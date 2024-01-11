@@ -19,25 +19,29 @@ class Character : MonoBehaviour
     GeneratorConfig _generatorConfig;
 
     NavMeshAgent _navMeshAgent;
+    Animator _characterAnimator;
 
     float _speed;
     float _maneuverability;
     float _stamina;
     float _currentStamina;
     float _staminaRegenTime;
-    bool _isRuning;
+    bool _isRunning;
 
     readonly string _mouseClickAction = "MouseClick";
+    readonly string _animationParameterName = "IsWalking";
 
     void OnEnable()
     {
         _actionAsset.Enable();
-        _charactersConfig.LiderID = 0;
-        _charactersConfig.LiderTransform = null;
+        _charactersConfig.LeaderID = 0;
+        _charactersConfig.LeaderTransform = null;
         _navMeshAgent = gameObject.GetComponent<NavMeshAgent>();
         _charactersConfig.MainCamera = Camera.main;
-        _isRuning = false;
+        _isRunning = false;
         _staminaRegenTime = _charactersConfig.StaminaRegenTime;
+        _characterAnimator = GetComponent<Animator>();
+
         GenerateTraits();
 
         _currentStamina = _stamina;
@@ -53,9 +57,8 @@ class Character : MonoBehaviour
     {
         _actionAsset.FindAction(_mouseClickAction).performed += _ =>
         {
-            if (_charactersConfig.LiderID == 0)
+            if (_charactersConfig.LeaderID == 0)
             {
-                Debug.Log("Select Character");
                 return;
             }
 
@@ -63,25 +66,29 @@ class Character : MonoBehaviour
             if (Physics.Raycast(ray: ray, hitInfo: out RaycastHit hit) && hit.collider)
             {
                 _charactersConfig.DestinationPoint = hit.point;
+                _isRunning = true;
+                _navMeshAgent.speed = _speed;                
 
-                if (_characterID == _charactersConfig.LiderID)
+                if (_characterID == _charactersConfig.LeaderID)
                 {
-                    _charactersConfig.LiderTransform = transform;
+                    _charactersConfig.LeaderTransform = transform;
+                    _charactersConfig.IsLeaderAtDestination = false;
                 }
             }
         };
 
-        if (_characterID == _charactersConfig.LiderID && _charactersConfig.LiderTransform != null)
+        if (_characterID == _charactersConfig.LeaderID && _charactersConfig.LeaderTransform != null)
         {
-            _isRuning = true;
+            _characterAnimator.SetBool(_animationParameterName, true);
             _navMeshAgent.destination = _charactersConfig.DestinationPoint;
-            _charactersConfig.LiderTransform = transform;
+            _charactersConfig.LeaderTransform = transform;
             _navMeshAgent.stoppingDistance = _charactersConfig.LeaderStoppingDistance;
+
         }
-        else if (_characterID != _charactersConfig.LiderID && _charactersConfig.LiderTransform != null)
+        else if (_characterID != _charactersConfig.LeaderID && _charactersConfig.LeaderTransform != null)
         {
-            _isRuning = true;
-            _navMeshAgent.destination = _charactersConfig.LiderTransform.position;
+            _characterAnimator.SetBool(_animationParameterName, true);
+            _navMeshAgent.destination = _charactersConfig.LeaderTransform.position;
             _navMeshAgent.stoppingDistance = _charactersConfig.CharacterStoppingDistance;
         }
     }
@@ -98,7 +105,7 @@ class Character : MonoBehaviour
 
     void StaminaManager()
     {
-        if (_currentStamina >= 0 && _isRuning)
+        if (_currentStamina >= 0 && _isRunning)
         {
             _currentStamina -= Time.deltaTime;
         }
@@ -108,20 +115,34 @@ class Character : MonoBehaviour
             {
                 _staminaRegenTime -= Time.deltaTime;
                 _navMeshAgent.speed = 0;
+                _characterAnimator.SetBool(_animationParameterName, false);
             }
             else
             {
+                _currentStamina = _stamina;
                 _navMeshAgent.speed = _speed;
                 _staminaRegenTime = _charactersConfig.StaminaRegenTime;
-                _currentStamina = _stamina;
+                _characterAnimator.SetBool(_animationParameterName, true);
             }
-
         }
         
-        if(_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && _isRuning)
+        if(_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && _characterID == _charactersConfig.LeaderID)
         {
+            _isRunning = false;
             _currentStamina = _stamina;
-            _isRuning = false;
+            _charactersConfig.IsLeaderAtDestination = true;
+            _characterAnimator.SetBool(_animationParameterName, false);
+        }
+        
+        if(_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && _characterID != _charactersConfig.LeaderID && _charactersConfig.IsLeaderAtDestination)
+        {
+            _isRunning = false;
+            _currentStamina = _stamina;
+            _characterAnimator.SetBool(_animationParameterName, false);
+        }
+        else if (_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && _characterID != _charactersConfig.LeaderID && !_charactersConfig.IsLeaderAtDestination)
+        {
+            _characterAnimator.SetBool(_animationParameterName, false);
         }
     }
 

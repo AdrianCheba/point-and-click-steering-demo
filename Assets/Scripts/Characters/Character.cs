@@ -19,6 +19,7 @@ class Character : MonoBehaviour
     GeneratorConfig _generatorConfig;
 
     NavMeshAgent _navMeshAgent;
+    Animator _characterAnimator;
 
     float _speed;
     float _maneuverability;
@@ -28,6 +29,7 @@ class Character : MonoBehaviour
     bool _isRuning;
 
     readonly string _mouseClickAction = "MouseClick";
+    readonly string _animationParameterName = "IsWalking";
 
     void OnEnable()
     {
@@ -38,6 +40,8 @@ class Character : MonoBehaviour
         _charactersConfig.MainCamera = Camera.main;
         _isRuning = false;
         _staminaRegenTime = _charactersConfig.StaminaRegenTime;
+        _characterAnimator = GetComponent<Animator>();
+
         GenerateTraits();
 
         _currentStamina = _stamina;
@@ -63,6 +67,8 @@ class Character : MonoBehaviour
             if (Physics.Raycast(ray: ray, hitInfo: out RaycastHit hit) && hit.collider)
             {
                 _charactersConfig.DestinationPoint = hit.point;
+                _isRuning = true;
+                _navMeshAgent.speed = _speed;
 
                 if (_characterID == _charactersConfig.LiderID)
                 {
@@ -73,14 +79,15 @@ class Character : MonoBehaviour
 
         if (_characterID == _charactersConfig.LiderID && _charactersConfig.LiderTransform != null)
         {
-            _isRuning = true;
+            _characterAnimator.SetBool(_animationParameterName, true);
             _navMeshAgent.destination = _charactersConfig.DestinationPoint;
             _charactersConfig.LiderTransform = transform;
             _navMeshAgent.stoppingDistance = _charactersConfig.LeaderStoppingDistance;
+
         }
         else if (_characterID != _charactersConfig.LiderID && _charactersConfig.LiderTransform != null)
         {
-            _isRuning = true;
+            _characterAnimator.SetBool(_animationParameterName, true);
             _navMeshAgent.destination = _charactersConfig.LiderTransform.position;
             _navMeshAgent.stoppingDistance = _charactersConfig.CharacterStoppingDistance;
         }
@@ -108,20 +115,25 @@ class Character : MonoBehaviour
             {
                 _staminaRegenTime -= Time.deltaTime;
                 _navMeshAgent.speed = 0;
+                _characterAnimator.SetBool(_animationParameterName, false);
             }
             else
             {
+                _currentStamina = _stamina;
                 _navMeshAgent.speed = _speed;
                 _staminaRegenTime = _charactersConfig.StaminaRegenTime;
-                _currentStamina = _stamina;
+                _characterAnimator.SetBool(_animationParameterName, true);
             }
 
         }
         
         if(_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && _isRuning)
         {
-            _currentStamina = _stamina;
             _isRuning = false;
+            _currentStamina = _stamina;
+            _navMeshAgent.speed = _speed;
+            _characterAnimator.SetBool(_animationParameterName, false); 
+
         }
     }
 

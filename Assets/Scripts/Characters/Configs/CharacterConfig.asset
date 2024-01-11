@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5b9f60a30c17864595647c10002298b, type: 3}
   m_Name: CharacterConfig
   m_EditorClassIdentifier: 
-  LiderID: 0
+  LiderID: 3
   MainCamera: {fileID: 0}
   LiderTransform: {fileID: 0}
   StaminaRegenTime: 2
   LeaderStoppingDistance: 0.2
-  CharacterStoppingDistance: 1.5
+  CharacterStoppingDistance: 1.7

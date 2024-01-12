@@ -1,10 +1,8 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class SetLeaderUI : MonoBehaviour
+class SetLeaderUI : MonoBehaviour
 {
     [SerializeField]
     TextMeshProUGUI _leaderIDText;   

@@ -5,9 +5,6 @@ class CharacterConfig : ScriptableObject
 {
     [SerializeField]
     internal int LeaderID;
-
-    [SerializeField]
-    internal Camera MainCamera;
     
     [SerializeField]
     internal bool IsLeaderAtDestination;
@@ -26,6 +23,10 @@ class CharacterConfig : ScriptableObject
     [SerializeField]
     [Range(0.1f, 3f)]
     internal float CharacterStoppingDistance;
+
+    internal readonly string MouseClickAction = "MouseClick";
+
+    internal readonly string AnimationParameterName = "IsWalking";
 
     internal Vector3 DestinationPoint;
 }

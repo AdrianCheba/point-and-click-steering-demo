@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.InputSystem;
@@ -7,10 +5,10 @@ using UnityEngine.InputSystem;
 class Character : MonoBehaviour
 {
     [SerializeField]
-    CharacterConfig _charactersConfig;
+    int _characterID;
 
     [SerializeField]
-    int _characterID;
+    CharacterConfig _charactersConfig;
 
     [SerializeField]
     InputActionAsset _actionAsset;
@@ -20,6 +18,7 @@ class Character : MonoBehaviour
 
     NavMeshAgent _navMeshAgent;
     Animator _characterAnimator;
+    Camera _mainCamera;
 
     float _speed;
     float _maneuverability;
@@ -28,16 +27,13 @@ class Character : MonoBehaviour
     float _staminaRegenTime;
     bool _isRunning;
 
-    readonly string _mouseClickAction = "MouseClick";
-    readonly string _animationParameterName = "IsWalking";
-
     void OnEnable()
     {
         _actionAsset.Enable();
         _charactersConfig.LeaderID = 0;
         _charactersConfig.LeaderTransform = null;
         _navMeshAgent = gameObject.GetComponent<NavMeshAgent>();
-        _charactersConfig.MainCamera = Camera.main;
+        _mainCamera = Camera.main;
         _isRunning = false;
         _staminaRegenTime = _charactersConfig.StaminaRegenTime;
         _characterAnimator = GetComponent<Animator>();
@@ -55,14 +51,14 @@ class Character : MonoBehaviour
 
     void MoveTo()
     {
-        _actionAsset.FindAction(_mouseClickAction).performed += _ =>
+        _actionAsset.FindAction(_charactersConfig.MouseClickAction).performed += _ =>
         {
             if (_charactersConfig.LeaderID == 0)
             {
                 return;
             }
 
-            Ray ray = _charactersConfig.MainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
+            Ray ray = _mainCamera.ScreenPointToRay(Mouse.current.position.ReadValue());
             if (Physics.Raycast(ray: ray, hitInfo: out RaycastHit hit) && hit.collider)
             {
                 _charactersConfig.DestinationPoint = hit.point;
@@ -79,7 +75,7 @@ class Character : MonoBehaviour
 
         if (_characterID == _charactersConfig.LeaderID && _charactersConfig.LeaderTransform != null)
         {
-            _characterAnimator.SetBool(_animationParameterName, true);
+            _characterAnimator.SetBool(_charactersConfig.AnimationParameterName, true);
             _navMeshAgent.destination = _charactersConfig.DestinationPoint;
             _charactersConfig.LeaderTransform = transform;
             _navMeshAgent.stoppingDistance = _charactersConfig.LeaderStoppingDistance;
@@ -87,9 +83,29 @@ class Character : MonoBehaviour
         }
         else if (_characterID != _charactersConfig.LeaderID && _charactersConfig.LeaderTransform != null)
         {
-            _characterAnimator.SetBool(_animationParameterName, true);
+            _characterAnimator.SetBool(_charactersConfig.AnimationParameterName, true);
             _navMeshAgent.destination = _charactersConfig.LeaderTransform.position;
             _navMeshAgent.stoppingDistance = _charactersConfig.CharacterStoppingDistance;
+        }
+
+
+        if (_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && _characterID == _charactersConfig.LeaderID)
+        {
+            _isRunning = false;
+            _currentStamina = _stamina;
+            _charactersConfig.IsLeaderAtDestination = true;
+            _characterAnimator.SetBool(_charactersConfig.AnimationParameterName, false);
+        }
+
+        if (_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && _characterID != _charactersConfig.LeaderID && _charactersConfig.IsLeaderAtDestination)
+        {
+            _isRunning = false;
+            _currentStamina = _stamina;
+            _characterAnimator.SetBool(_charactersConfig.AnimationParameterName, false);
+        }
+        else if (_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && _characterID != _charactersConfig.LeaderID && !_charactersConfig.IsLeaderAtDestination)
+        {
+            _characterAnimator.SetBool(_charactersConfig.AnimationParameterName, false);
         }
     }
 
@@ -115,34 +131,15 @@ class Character : MonoBehaviour
             {
                 _staminaRegenTime -= Time.deltaTime;
                 _navMeshAgent.speed = 0;
-                _characterAnimator.SetBool(_animationParameterName, false);
+                _characterAnimator.SetBool(_charactersConfig.AnimationParameterName, false);
             }
             else
             {
                 _currentStamina = _stamina;
                 _navMeshAgent.speed = _speed;
                 _staminaRegenTime = _charactersConfig.StaminaRegenTime;
-                _characterAnimator.SetBool(_animationParameterName, true);
+                _characterAnimator.SetBool(_charactersConfig.AnimationParameterName, true);
             }
-        }
-        
-        if(_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && _characterID == _charactersConfig.LeaderID)
-        {
-            _isRunning = false;
-            _currentStamina = _stamina;
-            _charactersConfig.IsLeaderAtDestination = true;
-            _characterAnimator.SetBool(_animationParameterName, false);
-        }
-        
-        if(_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && _characterID != _charactersConfig.LeaderID && _charactersConfig.IsLeaderAtDestination)
-        {
-            _isRunning = false;
-            _currentStamina = _stamina;
-            _characterAnimator.SetBool(_animationParameterName, false);
-        }
-        else if (_navMeshAgent.remainingDistance <= _navMeshAgent.stoppingDistance && _characterID != _charactersConfig.LeaderID && !_charactersConfig.IsLeaderAtDestination)
-        {
-            _characterAnimator.SetBool(_animationParameterName, false);
         }
     }
 

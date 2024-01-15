@@ -62,7 +62,6 @@ class Character : MonoBehaviour
             if (Physics.Raycast(ray: ray, hitInfo: out RaycastHit hit) && hit.collider)
             {
                 _charactersConfig.DestinationPoint = hit.point;
-                _isRunning = true;
                 _navMeshAgent.speed = _speed;                
 
                 if (_characterID == _charactersConfig.LeaderID)
@@ -75,6 +74,7 @@ class Character : MonoBehaviour
 
         if (_characterID == _charactersConfig.LeaderID && _charactersConfig.LeaderTransform != null)
         {
+            _isRunning = true;
             _characterAnimator.SetBool(_charactersConfig.AnimationParameterName, true);
             _navMeshAgent.destination = _charactersConfig.DestinationPoint;
             _charactersConfig.LeaderTransform = transform;
@@ -83,6 +83,7 @@ class Character : MonoBehaviour
         }
         else if (_characterID != _charactersConfig.LeaderID && _charactersConfig.LeaderTransform != null)
         {
+            _isRunning = true;
             _characterAnimator.SetBool(_charactersConfig.AnimationParameterName, true);
             _navMeshAgent.destination = _charactersConfig.LeaderTransform.position;
             _navMeshAgent.stoppingDistance = _charactersConfig.CharacterStoppingDistance;
